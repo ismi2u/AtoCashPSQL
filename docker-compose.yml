@@ -1,0 +1,37 @@
+version: '3.4'
+
+services:
+  sqldata:
+    image: "mcr.microsoft.com/mssql/server:2017-latest"
+    container_name: dbserver
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=Pa55word2019!123
+    ports:
+      - "14333:1433"
+    volumes:
+      - atocashdatavol:/var/opt/mssql/data
+    networks:
+      mynetwork:
+      
+  atocash:
+    image: ${DOCKER_REGISTRY-}ismi2u/atocash
+    build:
+      context: .
+      dockerfile: AtoCash/Dockerfile
+    command: tail -f /dev/null
+    container_name: appserver
+    tty: true
+    ports:
+      - "8080:80"
+    networks:
+      mynetwork:
+    depends_on:
+     - sqldata
+
+volumes:
+    atocashdatavol:
+    
+networks:
+    mynetwork:
+        driver: bridge
